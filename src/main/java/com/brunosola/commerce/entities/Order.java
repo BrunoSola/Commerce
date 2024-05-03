@@ -20,6 +20,9 @@ public class Order {
     @JoinColumn(name = "client_id") //Chave estrangeira
     private User client;
 
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private Payment payment;
+
     public Order() {
     }
 
