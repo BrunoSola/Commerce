@@ -95,6 +95,10 @@ public class User implements UserDetails {
         return orders;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
     public void addRoles(Role role) {
         roles.add(role);
     }

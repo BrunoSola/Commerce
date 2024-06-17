@@ -26,7 +26,7 @@ public class UserService implements UserDetailsService {
         }
 
         User user = new User();
-        user.setEmail(username);
+        user.setEmail(userDetailsProjections.get(0).getUsername());
         user.setPassword(userDetailsProjections.get(0).getPassword());
         for (UserDetailsProjection projection : userDetailsProjections){
             user.addRoles(new Role(projection.getRoleId(), projection.getAuthority()));
