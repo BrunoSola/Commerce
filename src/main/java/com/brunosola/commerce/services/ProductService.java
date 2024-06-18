@@ -1,8 +1,11 @@
 package com.brunosola.commerce.services;
 
+import com.brunosola.commerce.dto.CategoryDTO;
 import com.brunosola.commerce.dto.ProductDTO;
 import com.brunosola.commerce.dto.ProductMinDTO;
+import com.brunosola.commerce.entities.Category;
 import com.brunosola.commerce.entities.Product;
+import com.brunosola.commerce.repositories.CategoryRepository;
 import com.brunosola.commerce.repositories.ProductRepository;
 import com.brunosola.commerce.services.exceptions.DatabaseException;
 import com.brunosola.commerce.services.exceptions.ResourceNotFoundException;
@@ -19,11 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
     @Autowired
-    private ProductRepository repository;
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
     public ProductDTO findById(Long id){
-        Product product = repository.findById(id)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado.")); // Função do Optional para tratamento de exceção.
         return new ProductDTO(product);
         /* --- Passo a passo  ---
@@ -36,7 +42,7 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductMinDTO> findAll(String name, Pageable pageable) {
-        Page<Product> result = repository.searchByName(name, pageable);
+        Page<Product> result = productRepository.searchByName(name, pageable);
         return result.map(x -> new ProductMinDTO(x));
     }
 
@@ -44,16 +50,16 @@ public class ProductService {
     public ProductDTO insert(ProductDTO dto) {
         Product entity = new Product();
         copyDtoToEntity(dto, entity);
-        entity = repository.save(entity);
+        entity = productRepository.save(entity);
         return new ProductDTO(entity);
     }
 
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto) {
         try {
-            Product entity = repository.getReferenceById(id);
+            Product entity = productRepository.getReferenceById(id);
             copyDtoToEntity(dto, entity);
-            entity = repository.save(entity);
+            entity = productRepository.save(entity);
             return new ProductDTO(entity);
         }catch (EntityNotFoundException e){
             throw new ResourceNotFoundException("Recurso não encontrado.");
@@ -62,11 +68,11 @@ public class ProductService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id){
-        if (!repository.existsById(id)){
+        if (!productRepository.existsById(id)){
             throw new ResourceNotFoundException("Recurso não encontrado.");
         }
         try {
-            repository.deleteById(id);
+            productRepository.deleteById(id);
         }
         catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Falha de integridade referencial.");
@@ -78,6 +84,12 @@ public class ProductService {
         entity.setDescription(dto.getDescription());
         entity.setImgUrl(dto.getImgUrl());
         entity.setPrice(dto.getPrice());
+
+        entity.getCategories().clear();
+        for (CategoryDTO catDTO : dto.getCategories()){
+            Category cat = categoryRepository.getReferenceById(catDTO.getId());
+            entity.getCategories().add(cat);
+        }
     }
 
 
