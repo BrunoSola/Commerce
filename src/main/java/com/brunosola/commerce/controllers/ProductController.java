@@ -1,6 +1,7 @@
 package com.brunosola.commerce.controllers;
 
 import com.brunosola.commerce.dto.ProductDTO;
+import com.brunosola.commerce.dto.ProductMinDTO;
 import com.brunosola.commerce.services.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ProductDTO>> findAll(@RequestParam(name = "name", defaultValue = "") String name, Pageable pageable){
+    public ResponseEntity<Page<ProductMinDTO>> findAll(@RequestParam(name = "name", defaultValue = "") String name, Pageable pageable){
         return ResponseEntity.ok(service.findAll(name, pageable));
     }
 
