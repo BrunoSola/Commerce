@@ -46,7 +46,7 @@ public class OrderItemDTO {
         //return Math.round((price*quantity)*100)/100.0;
         BigDecimal bdPrice = new BigDecimal(Double.toString(price));
         BigDecimal bdQuantity = new BigDecimal(Integer.toString(quantity));
-        BigDecimal bdTotal = bdPrice.multiply(bdQuantity).setScale(1, RoundingMode.HALF_UP);
+        BigDecimal bdTotal = bdPrice.multiply(bdQuantity).setScale(2, RoundingMode.UNNECESSARY);
         return bdTotal.doubleValue();
     }
 }
