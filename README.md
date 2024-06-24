@@ -1,7 +1,7 @@
 [JAVA_BADGE]:https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white
 [SPRING_BADGE]: https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white
 
-<div style="text-align:center">
+<div>
     <h1>E-Commerce 💻</h1>
 
 [![NPM](https://img.shields.io/npm/l/react)](https://github.com/BrunoSola/Commerce/blob/main/LICENSE)
@@ -10,14 +10,14 @@
 ![java][JAVA_BADGE]
 </div>
 
-<div style="text-align:center">
+<p>
     <a href="#started">Introdução</a> • 
     <a href="#dependencias">Dependências</a> •
     <a href="#routes">API Endpoints</a> •
     <a href="#uml">Modelo conceitual</a>
-</div>
+</p></br>
 
-<div style="text-align:center">
+<div>
     <b>E-Commerce é uma aplicação Back-End construído durante a formação Java Spring, ministrado pela <a href="https://devsuperior.com.br">DevSuperior</a>.</b><br>
     <b>A aplicação consiste em um sistema de comércio eletrônico onde é possível realizar funcionalidades tais como manter um cadastro
         de produtos, pesquisar produtos para fins de catálogo e carrinho de compras, registrar e
@@ -240,4 +240,5 @@ Siga os passos abaixo para configurar o ambiente de desenvolvimento:
 ```
 
 <h2 id="uml">Modelo conceitual</h2>
-![Modelo conceitual](assents/commerce_UML.png)
+
+![Modelo conceitual](https://github.com/BrunoSola/Commerce/blob/main/assents/commerce_UML.png)
