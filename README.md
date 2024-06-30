@@ -1,6 +1,7 @@
 [JAVA_BADGE]:https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white
 [SPRING_BADGE]: https://img.shields.io/badge/spring-%236DB33F.svg?style=for-the-badge&logo=spring&logoColor=white
-
+[POSTGRES_BADGE]: https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white
+[RENDER_BADGE]: https://img.shields.io/badge/Render-%46E3B7.svg?style=for-the-badge&logo=render&logoColor=white
 <div>
     <h1>E-Commerce 💻</h1>
 
@@ -8,6 +9,9 @@
 
 ![spring][SPRING_BADGE]
 ![java][JAVA_BADGE]
+![Postgres][POSTGRES_BADGE]
+![Render][RENDER_BADGE]
+
 </div>
 
 <p>
