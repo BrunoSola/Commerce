@@ -1,9 +1,12 @@
 package com.brunosola.commerce.services;
 
 
+import com.brunosola.commerce.dto.CategoryDTO;
 import com.brunosola.commerce.dto.ProductDTO;
 import com.brunosola.commerce.dto.ProductMinDTO;
+import com.brunosola.commerce.entities.Category;
 import com.brunosola.commerce.entities.Product;
+import com.brunosola.commerce.repositories.CategoryRepository;
 import com.brunosola.commerce.repositories.ProductRepository;
 import com.brunosola.commerce.services.exceptions.DatabaseException;
 import com.brunosola.commerce.services.exceptions.ResourceNotFoundException;
@@ -35,11 +38,17 @@ public class ProductServiceTests {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private CategoryRepository categoryRepository;
+
     private long existingId;
     private long nonExistingId;
     private long dependentId;
     private PageImpl<Product> page;
     private Product product;
+    private ProductDTO productDTO;
+    private Category category;
+    private CategoryDTO categoryDTO;
     private String text;
 
     @BeforeEach
@@ -48,6 +57,9 @@ public class ProductServiceTests {
         nonExistingId = 2L;
         dependentId = 3L;
         product = Factory.createProduct();
+        productDTO = Factory.createProductDTO();
+        category = Factory.createCategory();
+        categoryDTO = Factory.createCategoryDTO();
         page = new PageImpl<>(List.of(product));
         text = "";
 
@@ -60,12 +72,27 @@ public class ProductServiceTests {
         when(productRepository.existsById(dependentId)).thenReturn(true);
         when(productRepository.searchByName(anyString(),(Pageable) any())).thenReturn(page);
         when(productRepository.findById(existingId)).thenReturn(Optional.of(product));
+        when(productRepository.save(any())).thenReturn(product);
+        when(categoryRepository.getReferenceById(existingId)).thenReturn(category);
+    }
+
+    @Test
+    public void insertShouldCreateNewProduct(){
+        ProductDTO result = productService.insert(productDTO);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1L, result.getId());
+        Assertions.assertEquals("new product", result.getName());
+        Assertions.assertEquals("Good product", result.getDescription());
+        Assertions.assertEquals(100.0, result.getPrice());
+        Assertions.assertEquals("https://img.com/img.png", result.getImgUrl());
+        verify(productRepository).save(any());
+        verify(categoryRepository).getReferenceById(category.getId());
     }
 
     @Test
     public void findByIdShouldThrowResourceNotFoundExceptionWhenNonExistingId(){
-        Assertions.assertThrows(ResourceNotFoundException.class, () ->
-                productService.findById(nonExistingId));
+        Assertions.assertThrows(ResourceNotFoundException.class,
+                () -> productService.findById(nonExistingId));
         verify(productRepository).findById(nonExistingId);
     }
 
