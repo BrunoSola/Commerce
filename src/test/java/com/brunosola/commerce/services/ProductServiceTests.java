@@ -47,7 +47,9 @@ public class ProductServiceTests {
     private PageImpl<Product> page;
     private Product product;
     private ProductDTO productDTO;
+    private ProductDTO productDTOUpdate;
     private Category category;
+    private Category newCategory;
     private CategoryDTO categoryDTO;
     private String text;
 
@@ -58,14 +60,16 @@ public class ProductServiceTests {
         dependentId = 3L;
         product = Factory.createProduct();
         productDTO = Factory.createProductDTO();
+        productDTOUpdate = Factory.updateProduct();
         category = Factory.createCategory();
-        categoryDTO = Factory.createCategoryDTO();
+        newCategory = new Category(4L, "Eletrônicos");
         page = new PageImpl<>(List.of(product));
         text = "";
 
         doNothing().when(productRepository).deleteById(existingId);
         doThrow(DataIntegrityViolationException.class).when(productRepository).deleteById(dependentId);
         doThrow(ResourceNotFoundException.class).when(productRepository).findById(nonExistingId);
+        doThrow(ResourceNotFoundException.class).when(productRepository).getReferenceById(nonExistingId);
 
         when(productRepository.existsById(existingId)).thenReturn(true);
         when(productRepository.existsById(nonExistingId)).thenReturn(false);
@@ -73,7 +77,36 @@ public class ProductServiceTests {
         when(productRepository.searchByName(anyString(),(Pageable) any())).thenReturn(page);
         when(productRepository.findById(existingId)).thenReturn(Optional.of(product));
         when(productRepository.save(any())).thenReturn(product);
-        when(categoryRepository.getReferenceById(existingId)).thenReturn(category);
+        when(productRepository.getReferenceById(existingId)).thenReturn(product);
+
+        when(categoryRepository.getReferenceById(1L)).thenReturn(category);
+        when(categoryRepository.getReferenceById(4L)).thenReturn(newCategory);
+    }
+
+    @Test
+    public void updateShouldThrowResourceNotFoundExceptionWhenNonExistingId() {
+        Assertions.assertThrows(ResourceNotFoundException.class,
+                () -> productService.update(nonExistingId, productDTOUpdate));
+        verify(productRepository).getReferenceById(nonExistingId);
+    }
+
+    @Test
+    public void updateShouldUpdateProductWhenExistingId(){
+        ProductDTO result = productService.update(existingId, productDTOUpdate);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1L, result.getId());
+        Assertions.assertEquals("update product", result.getName());
+        Assertions.assertEquals("Good product", result.getDescription());
+        Assertions.assertEquals(50.0, result.getPrice());
+        Assertions.assertEquals("https://img.com/img2.png", result.getImgUrl());
+
+        Assertions.assertTrue(result.getCategories().stream().anyMatch(x -> x.getId().equals(newCategory.getId())));
+        Assertions.assertTrue(product.getCategories().stream().anyMatch(x -> x.getId().equals(newCategory.getId())));
+
+        verify(categoryRepository).getReferenceById(newCategory.getId());
+        verify(productRepository).getReferenceById(product.getId());
+        verify(productRepository).save(any());
     }
 
     @Test
@@ -85,6 +118,11 @@ public class ProductServiceTests {
         Assertions.assertEquals("Good product", result.getDescription());
         Assertions.assertEquals(100.0, result.getPrice());
         Assertions.assertEquals("https://img.com/img.png", result.getImgUrl());
+
+        Assertions.assertTrue(result.getCategories().stream().anyMatch(x -> x.getId().equals(category.getId())));
+        Assertions.assertTrue(result.getCategories().stream().anyMatch(x -> x.getName().equals(category.getName())));
+        Assertions.assertTrue(product.getCategories().stream().anyMatch(x -> x.getId().equals(category.getId())));
+        Assertions.assertTrue(product.getCategories().stream().anyMatch(x -> x.getName().equals(category.getName())));
         verify(productRepository).save(any());
         verify(categoryRepository).getReferenceById(category.getId());
     }
