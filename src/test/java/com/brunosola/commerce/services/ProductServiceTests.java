@@ -68,8 +68,6 @@ public class ProductServiceTests {
 
         doNothing().when(productRepository).deleteById(existingId);
         doThrow(DataIntegrityViolationException.class).when(productRepository).deleteById(dependentId);
-        doThrow(ResourceNotFoundException.class).when(productRepository).findById(nonExistingId);
-        doThrow(ResourceNotFoundException.class).when(productRepository).getReferenceById(nonExistingId);
 
         when(productRepository.existsById(existingId)).thenReturn(true);
         when(productRepository.existsById(nonExistingId)).thenReturn(false);
@@ -78,6 +76,8 @@ public class ProductServiceTests {
         when(productRepository.findById(existingId)).thenReturn(Optional.of(product));
         when(productRepository.save(any())).thenReturn(product);
         when(productRepository.getReferenceById(existingId)).thenReturn(product);
+        when(productRepository.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
+        when(productRepository.getReferenceById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
 
         when(categoryRepository.getReferenceById(1L)).thenReturn(category);
         when(categoryRepository.getReferenceById(4L)).thenReturn(newCategory);
