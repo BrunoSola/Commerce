@@ -3,6 +3,7 @@ package com.brunosola.commerce.config;
 import com.brunosola.commerce.config.customgrant.CustomPasswordAuthenticationConverter;
 import com.brunosola.commerce.config.customgrant.CustomPasswordAuthenticationProvider;
 import com.brunosola.commerce.config.customgrant.CustomUserAuthorities;
+import com.brunosola.commerce.services.UserService;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -14,8 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2Token;
@@ -49,6 +48,9 @@ import java.util.UUID;
 @Configuration
 public class AuthorizationServerConfig {
 
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+
     @Value("${security.client-id}")
     private String clientId;
 
@@ -59,7 +61,10 @@ public class AuthorizationServerConfig {
     private Integer jwtDurationSeconds;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    public AuthorizationServerConfig(UserService userService, PasswordEncoder passwordEncoder) {
+        this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Bean
     @Order(2)
@@ -71,7 +76,7 @@ public class AuthorizationServerConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .tokenEndpoint(tokenEndpoint -> tokenEndpoint
                         .accessTokenRequestConverter(new CustomPasswordAuthenticationConverter())
-                        .authenticationProvider(new CustomPasswordAuthenticationProvider(authorizationService(), tokenGenerator(), userDetailsService, passwordEncoder())));
+                        .authenticationProvider(new CustomPasswordAuthenticationProvider(authorizationService(), tokenGenerator(), userService, passwordEncoder)));
 
         http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
         // @formatter:on
@@ -90,17 +95,12 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public RegisteredClientRepository registeredClientRepository() {
         // @formatter:off
         RegisteredClient registeredClient = RegisteredClient
                 .withId(UUID.randomUUID().toString())
                 .clientId(clientId)
-                .clientSecret(passwordEncoder().encode(clientSecret))
+                .clientSecret(passwordEncoder.encode(clientSecret))
                 .scope("read")
                 .scope("write")
                 .authorizationGrantType(new AuthorizationGrantType("password"))
