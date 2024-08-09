@@ -10,6 +10,9 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
+	@Query(value = "SELECT obj FROM User obj JOIN FETCH obj.roles")
+	List<User> searchAll();
+
     Optional<User> findByEmail(String username);
 
     @Query(nativeQuery = true, value = """
@@ -20,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 			WHERE tb_user.email = :email
 		""")
     List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
+
+	boolean existsByEmail(String email);
 }
